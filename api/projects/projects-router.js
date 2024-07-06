@@ -7,18 +7,20 @@ const Project = require('./projects-model')
 
 // GET /api/projects - Fetch all projects
 router.get('/', async (req, res) => {
-    Project.find()
-    .then(found => {
-        res.json(found)
-    })
-    .catch(err => {
-        res.status(500).json({
-            message:"The projects information could not be retrieved",
-            err: err.message,
-            stack: err.stack,
-        })
-    })
-}
+    try {
+      const projects = await Project.getAllProjects();
+      if (!projects || projects.length === 0) {
+        return res.status(200).json([]); // Send an empty array if no projects are found
+      }
+      res.status(200).json(projects);
+    } catch (error) {
+      res.status(500).json({
+        message: "The projects information could not be retrieved",
+        err: error.message,
+        stack: error.stack,
+      });
+    }
+  });
   
 
-module.exports = router,
+module.exports = router
